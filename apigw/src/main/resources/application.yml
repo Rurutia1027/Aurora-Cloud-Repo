@@ -1,0 +1,29 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: apigw
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: apigw
+        register: true
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+    gateway:
+      routes:
+        - id: customer
+          uri: lb://customer
+          predicates:
+            - Path=/api/v1/customers/**
+        - id: fraud
+          uri: lb://fraud
+          predicates:
+            - Path=/api/v1/fraud/**
+        - id: notification
+          uri: lb://notification
+          predicates:
+            - Path=/api/v1/notification/**
