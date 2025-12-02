@@ -1,0 +1,46 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: notification
+
+  datasource:
+    url: jdbc:postgresql://notification.default.svc.cluster.local:5432/notification
+    username: admin
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    show-sql: false
+
+  rabbitmq:
+    addresses: rabbitmq.default.svc.cluster.local:5672
+
+  cloud:
+    consul:
+      host: consul.default.svc.cluster.local
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        service-name: notification
+
+rabbitmq:
+  exchanges:
+    internal: internal.exchange
+  queues:
+    notification: notification.queue
+  routing-keys:
+    internal-notification: internal.notification.routing-key
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

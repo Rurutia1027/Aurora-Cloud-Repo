@@ -1,0 +1,32 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: ${APP_NAME:fraud}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fraud}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        enabled: true
+        register: true
+
+logging:
+  level:
+    root: INFO

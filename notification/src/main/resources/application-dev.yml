@@ -1,0 +1,47 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: notification
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notification
+    username: admin
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  rabbitmq:
+    addresses: localhost:5672
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        prefer-ip-address: true
+        service-name: notification
+
+rabbitmq:
+  exchanges:
+    internal: internal.exchange
+  queues:
+    notification: notification.queue
+  routing-keys:
+    internal-notification: internal.notification.routing-key
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

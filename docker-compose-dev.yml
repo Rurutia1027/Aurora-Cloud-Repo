@@ -1,0 +1,124 @@
+# docker-compose -f docker-compose-dev.yml up -d
+# docker-compose -f docker-compose-dev.yml ps
+# docker-compose -f docker-compose-dev.yml logs -f apigw
+
+services:
+  # ----------------- Third-party services -----------------
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - spring
+    restart: unless-stopped
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.9.11-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - spring
+    restart: unless-stopped
+
+  consul:
+    container_name: consul
+    image: hashicorp/consul:latest
+    command: "agent -dev -client=0.0.0.0"
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    networks:
+      - spring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ----------------- Business services -----------------
+  apigw:
+    container_name: apigw
+    image: nanachi1027/aurora-apigw:latest
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - CONSUL_HOST=consul
+    networks:
+      - spring
+    depends_on:
+      - customer
+      - fraud
+      - notification
+      - consul
+
+  customer:
+    container_name: customer
+    image: nanachi1027/aurora-customer:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - CONSUL_HOST=consul
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/customer
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+    networks:
+      - spring
+    depends_on:
+      - postgres
+      - rabbitmq
+      - consul
+
+  fraud:
+    container_name: fraud
+    image: nanachi1027/aurora-fraud:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - CONSUL_HOST=consul
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/fraud
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+    networks:
+      - spring
+    depends_on:
+      - postgres
+      - consul
+
+  notification:
+    container_name: notification
+    image: nanachi1027/aurora-notification:latest
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - CONSUL_HOST=consul
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/notification
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - RABBITMQ_ADDRESSES=rabbitmq:5672
+    networks:
+      - spring
+    depends_on:
+      - postgres
+      - rabbitmq
+      - consul
+
+networks:
+  spring:
+    driver: bridge
+
+volumes:
+  postgres:

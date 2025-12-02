@@ -1,12 +1,15 @@
 server:
-  port: 8080
+  port: 8081
+
 spring:
   application:
-    name: customer
+    name: fraud
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/customer
+    url: jdbc:postgresql://postgres:5432/fraud
     username: admin
     password: admin
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -15,7 +18,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
-  rabbitmq:
-    addresses: localhost:5672
-  profiles:
-    active: default
+
+  cloud:
+    consul:
+      host: consul
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
