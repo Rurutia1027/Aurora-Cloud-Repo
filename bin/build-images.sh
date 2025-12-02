@@ -19,12 +19,6 @@ done
 # List images
 docker images | grep aurora | grep nanachi1027
 
-# Exit here for now
-exit
-
-# TODO: Docker login
-echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-
 # Push images
 for module in customer fraud notification apigw; do
   docker push nanachi1027/aurora-$module:latest
