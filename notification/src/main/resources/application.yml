@@ -35,8 +35,6 @@ spring:
         register: true
         health-check-path: /actuator/health
         health-check-interval: 10s
-        prefer-ip-address: true
-        service-name: ${APP_NAME:notification}
 
 rabbitmq:
   exchanges:

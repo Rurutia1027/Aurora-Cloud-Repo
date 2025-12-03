@@ -33,8 +33,7 @@ spring:
       discovery:
         enabled: true
         register: true
-        prefer-ip-address: true
-        service-name: ${APP_NAME:notification}
+        health-check-path: /actuator/health
         health-check-interval: 10s
 
 rabbitmq:

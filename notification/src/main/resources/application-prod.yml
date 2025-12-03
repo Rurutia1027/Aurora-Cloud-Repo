@@ -24,7 +24,7 @@ spring:
 
   cloud:
     consul:
-      host: ${CONSUL_HOST:consul.default.svc.cluster.local}
+      host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       retry:
         max-attempts: 5
@@ -33,8 +33,7 @@ spring:
       discovery:
         enabled: true
         register: true
-        prefer-ip-address: true
-        service-name: ${APP_NAME:notification}
+        health-check-path: /actuator/health
         health-check-interval: 10s
 
 rabbitmq:
