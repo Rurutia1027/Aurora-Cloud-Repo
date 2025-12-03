@@ -49,6 +49,7 @@ services:
   apigw:
     container_name: apigw
     image: nanachi1027/aurora-apigw:latest
+    platform: linux/arm64
     ports:
       - "8083:8083"
     environment:
@@ -65,6 +66,7 @@ services:
   customer:
     container_name: customer
     image: nanachi1027/aurora-customer:latest
+    platform: linux/arm64
     ports:
       - "8080:8080"
     environment:
@@ -83,6 +85,7 @@ services:
   fraud:
     container_name: fraud
     image: nanachi1027/aurora-fraud:latest
+    platform: linux/arm64
     ports:
       - "8081:8081"
     environment:
@@ -100,6 +103,7 @@ services:
   notification:
     container_name: notification
     image: nanachi1027/aurora-notification:latest
+    platform: linux/arm64
     ports:
       - "8082:8082"
     environment:
