@@ -6,21 +6,21 @@ spring:
     name: ${APP_NAME:notification}
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/notification}
+    url: ${DB_URL:jdbc:postgresql://notification.default.svc.cluster.local:5432/notification}
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:admin}
 
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:create-drop}
+      ddl-auto: ${JPA_DDL_AUTO:validate}
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
-          format_sql: true
-    show-sql: ${JPA_SHOW_SQL:true}
+          format_sql: false
+    show-sql: ${JPA_SHOW_SQL:false}
 
   rabbitmq:
-    addresses: ${RABBITMQ_ADDR:localhost:5672}
+    addresses: ${RABBITMQ_ADDR:rabbitmq.default.svc.cluster.local:5672}
 
   cloud:
     consul:

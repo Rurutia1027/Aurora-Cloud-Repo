@@ -1,14 +1,14 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 spring:
   application:
-    name: ${APP_NAME:customer}
+    name: customer
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/customer}
-    username: ${DB_USERNAME:admin}
-    password: ${DB_PASSWORD:admin}
+    url: jdbc:postgresql://customer-db.default.svc.cluster.local:5432/customer
+    username: admin
+    password: admin
 
   jpa:
     hibernate:
@@ -16,16 +16,16 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: true
+        format_sql: false
+    show-sql: false
 
   rabbitmq:
-    addresses: ${RABBITMQ_ADDR:localhost:5672}
+    addresses: rabbitmq.default.svc.cluster.local:5672
 
   cloud:
     consul:
-      host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_PORT:8500}
+      host: consul.default.svc.cluster.local
+      port: 8500
       discovery:
         enabled: true
         register: true

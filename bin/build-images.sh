@@ -4,7 +4,7 @@ set -e
 # Docker build
 for module in customer fraud notification apigw; do
   echo "Building Docker image for $module ..."
-  docker build -t nanachi1027/aurora-$module:latest ./$module
+  docker build --platform linux/arm64 -t nanachi1027/aurora-$module:latest ./$module
 done
 
 # List images

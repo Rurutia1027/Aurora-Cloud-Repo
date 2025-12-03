@@ -1,0 +1,30 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: ${APP_NAME:fraud}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://fraud-db.default.svc.cluster.local:5432/fraud}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:none}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    show-sql: ${JPA_SHOW_SQL:false}
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:consul.default.svc.cluster.local}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        enabled: true
+        register: true
+        health-check-path: /actuator/health
+        health-check-interval: 30s

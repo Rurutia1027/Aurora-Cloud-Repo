@@ -1,29 +1,45 @@
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
 
 spring:
   application:
-    name: apigw
+    name: ${APP_NAME:apigw}
+
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         service-name: apigw
         register: true
+        prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
-    gateway:
-      routes:
-        - id: customer
-          uri: lb://customer
-          predicates:
-            - Path=/api/v1/customers/**
-        - id: fraud
-          uri: lb://fraud
-          predicates:
-            - Path=/api/v1/fraud/**
-        - id: notification
-          uri: lb://notification
-          predicates:
-            - Path=/api/v1/notification/**
+
+  gateway:
+    routes:
+      - id: customer
+        uri: lb://customer
+        predicates:
+          - Path=/api/v1/customers/**
+      - id: fraud
+        uri: lb://fraud
+        predicates:
+          - Path=/api/v1/fraud/**
+      - id: notification
+        uri: lb://notification
+        predicates:
+          - Path=/api/v1/notification/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}

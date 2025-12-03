@@ -20,7 +20,7 @@ spring:
     show-sql: ${JPA_SHOW_SQL:true}
 
   rabbitmq:
-    addresses: ${RABBITMQ_ADDR:localhost:5672}
+    addresses: ${RABBITMQ_ADDRESSES:localhost:5672}
 
   cloud:
     consul:
