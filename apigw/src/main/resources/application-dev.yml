@@ -1,14 +1,14 @@
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
 
 spring:
   application:
-    name: apigw
+    name: ${APP_NAME:apigw}
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
 
     gateway:
       routes:

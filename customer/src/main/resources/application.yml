@@ -1,21 +1,46 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
 spring:
   application:
-    name: customer
+    name: ${APP_NAME:customer}
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/customer
-    username: admin
-    password: admin
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/customer}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+
   rabbitmq:
-    addresses: localhost:5672
-  profiles:
-    active: default
+    addresses: ${RABBITMQ_ADDR:localhost:5672}
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        enabled: true
+        register: true
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO

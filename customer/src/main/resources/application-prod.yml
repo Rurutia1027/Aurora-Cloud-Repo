@@ -21,3 +21,26 @@ spring:
 
   rabbitmq:
     addresses: rabbitmq.default.svc.cluster.local:5672
+
+  cloud:
+    consul:
+      host: consul.default.svc.cluster.local
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO

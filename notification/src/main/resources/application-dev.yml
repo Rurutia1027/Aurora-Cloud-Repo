@@ -1,36 +1,43 @@
 server:
-  port: 8082
+  port: ${SERVER_PORT:8082}
 
 spring:
   application:
-    name: notification
+    name: ${APP_NAME:notification}
+  profiles:
+    active: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/notification
-    username: admin
-    password: admin
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/notification}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: true
+      ddl-auto: ${JPA_DDL_AUTO:create-drop}
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          format_sql: true
+    show-sql: ${JPA_SHOW_SQL:true}
 
   rabbitmq:
-    addresses: localhost:5672
+    addresses: ${RABBITMQ_ADDR:localhost:5672}
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      retry:
+        max-attempts: 5
+        initial-interval: 1000
+        max-interval: 5000
       discovery:
         enabled: true
         register: true
         prefer-ip-address: true
-        service-name: notification
+        service-name: ${APP_NAME:notification}
+        health-check-interval: 10s
 
 rabbitmq:
   exchanges:
@@ -44,4 +51,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
