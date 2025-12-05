@@ -34,24 +34,22 @@ spec:
                 configMapKeyRef:
                   name: aurora-config
                   key: CONSUL_PORT
-            - name: SPRING_DATASOURCE_HOST
+            - name: POSTGRES_HOST
               valueFrom:
                 configMapKeyRef:
                   name: aurora-config
                   key: POSTGRES_HOST
-            - name: SPRING_DATASOURCE_PORT
+            - name: POSTGRES_PORT
               valueFrom:
                 configMapKeyRef:
                   name: aurora-config
                   key: POSTGRES_PORT
-            - name: SPRING_DATASOURCE_DB
-              value: notification
-            - name: SPRING_DATASOURCE_USERNAME
+            - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
                   name: aurora-config
                   key: POSTGRES_USER
-            - name: SPRING_DATASOURCE_PASSWORD
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   name: aurora-config
