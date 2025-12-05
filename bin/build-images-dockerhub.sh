@@ -1,17 +1,28 @@
 #!/bin/bash
 set -e
 
-# Docker build
-for module in customer fraud notification apigw; do
+# Usage: ./build-images-dockerhub.sh <tag>
+TAG=$1
+LATEST_TAG="latest"
+
+modules=(customer fraud notification apigw)
+
+# Build and tag images
+for module in "${modules[@]}"; do
   echo "Building Docker image for $module ..."
-  docker build --platform linux/arm64 -t nanachi1027/aurora-$module:latest ./$module
+
+  # Build with unique tag
+  docker build --platform linux/arm64 -t nanachi1027/aurora-$module:$TAG ./$module
+
+  # Tag also as latest
+  docker tag nanachi1027/aurora-$module:$TAG nanachi1027/aurora-$module:$LATEST_TAG
 done
 
 # List images
 docker images | grep aurora | grep nanachi1027
 
-# Push images
-for module in customer fraud notification apigw; do
-  docker push nanachi1027/aurora-$module:latest
+# Push both tags
+for module in "${modules[@]}"; do
+  docker push nanachi1027/aurora-$module:$TAG
+  docker push nanachi1027/aurora-$module:$LATEST_TAG
 done
-

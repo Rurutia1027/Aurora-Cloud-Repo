@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigw
+  namespace: aurora-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigw
+  template:
+    metadata:
+      labels:
+        app: apigw
+    spec:
+      containers:
+        - name: apigw
+          image: nanachi1027/aurora-apigw:latest
+          ports:
+            - containerPort: 8083
+          env:
+            # apigw-config-map
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: apigw-config
+                  key: APP_NAME
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: apigw-config
+                  key: SERVER_PORT
+
+            # common-config-map
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: CONSUL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: CONSUL_HOST
+            - name: CONSUL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: CONSUL_PORT
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: aurora-config
+                  key: RABBITMQ_PORT

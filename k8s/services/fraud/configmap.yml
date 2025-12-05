@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fraud-config
+  namespace: aurora-prod
+data:
+  APP_NAME: "fraud"
+  SERVER_PORT: "8081"

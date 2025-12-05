@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: aurora-dev
+  namespace: aurora-prod
 spec:
   accessModes:
     - ReadWriteOnce

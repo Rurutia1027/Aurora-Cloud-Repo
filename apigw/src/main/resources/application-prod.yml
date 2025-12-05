@@ -16,16 +16,29 @@ spring:
         response-timeout: 5s
       routes:
         - id: customer
-          uri: http://customer.default.svc.cluster.local
+          uri: lb://customer
           predicates:
             - Path=/api/v1/customers/**
 
         - id: fraud
-          uri: http://fraud.default.svc.cluster.local
+          uri: lb://fraud
           predicates:
             - Path=/api/v1/fraud/**
 
         - id: notification
-          uri: http://notification.default.svc.cluster.local
+          uri: lb://notification
           predicates:
             - Path=/api/v1/notification/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consumer-config
+  namespace: aurora-prod
+data:
+  APP_NAME: "consumer"
+  SERVER_PORT: "8080"

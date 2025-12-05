@@ -1,14 +1,15 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
-    name: customer
+    name: ${APP_NAME:customer}
 
   datasource:
-    url: jdbc:postgresql://customer-db.default.svc.cluster.local:5432/customer
-    username: admin
-    password: admin
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/customer
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -20,15 +21,16 @@ spring:
     show-sql: false
 
   rabbitmq:
-    addresses: rabbitmq.default.svc.cluster.local:5672
+    addresses: ${RABBITMQ_HOST}:${RABBITMQ_PORT}
 
   cloud:
     consul:
-      host: consul.default.svc.cluster.local
-      port: 8500
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
       discovery:
         enabled: true
         register: true
+        prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
 
@@ -43,4 +45,4 @@ management:
 
 logging:
   level:
-    root: INFO
+    root: ${LOG_LEVEL:INFO}
