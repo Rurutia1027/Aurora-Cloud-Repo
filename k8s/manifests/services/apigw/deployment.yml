@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigw
+  namespace: aurora-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigw
+  template:
+    metadata:
+      labels:
+        app: apigw
+    spec:
+      containers:
+        - name: apigw
+          image: nanachi1027/aurora-apigw:latest
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: aurora-config
