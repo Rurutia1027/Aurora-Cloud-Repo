@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: fraud
-          image: nanachi1027/aurora-fraud:latest
+          image: nanachi1027/aurora-fraud:f58570b3caa4836fa20f43a3d297c4e81ed6976b
           ports:
             - containerPort: 8081
           env:

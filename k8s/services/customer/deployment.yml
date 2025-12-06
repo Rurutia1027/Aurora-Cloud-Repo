@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: customer
-          image: nanachi1027/aurora-customer:latest
+          image: nanachi1027/aurora-customer:0489a5430d7e0c9c4ee660c7b8c169233cea747c
           ports:
             - containerPort: 8080
           env:
