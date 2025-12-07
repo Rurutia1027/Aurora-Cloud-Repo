@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres
+          image: postgres:15
           env:
             - name: POSTGRES_USER
               value: "admin"
@@ -29,7 +29,12 @@ spec:
           volumeMounts:
             - mountPath: /data/postgres
               name: postgres-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: init-sql
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-pvc
+        - name: init-sql
+          configMap:
+            name: postgres-init-cm

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: notification
-          image: nanachi1027/aurora-notification:f58570b3caa4836fa20f43a3d297c4e81ed6976b
+          image: nanachi1027/aurora-notification:latest
           ports:
             - containerPort: 8082
           env:
