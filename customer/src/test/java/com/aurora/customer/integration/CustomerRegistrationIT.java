@@ -1,13 +1,22 @@
 package com.aurora.customer.integration;
 
-import com.aurora.amqp.RabbitMQMessageProducer;
 import com.aurora.clients.fraud.FraudCheckResponse;
 import com.aurora.clients.fraud.FraudClient;
+import com.aurora.clients.notification.NotificationRequest;
 import com.aurora.customer.dto.Customer;
 import com.aurora.customer.dto.CustomerRegistrationRequest;
 import com.aurora.customer.repo.CustomerRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueInformation;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
@@ -32,8 +41,27 @@ public class CustomerRegistrationIT extends BaseIntegrationTest {
     @MockBean
     private FraudClient fraudClient;
 
-    @MockBean
-    private RabbitMQMessageProducer rabbitMQMessageProducer;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Value("${rabbitmq.queues.notification}")
+    private String notificationQueue;
+
+    @Autowired
+    private AmqpAdmin amqpAdmin;
+
+    @BeforeEach
+    void setupRabbit() {
+        Queue queue = new Queue(notificationQueue, true);
+        DirectExchange exchange = new DirectExchange("internal.exchange");
+        Binding binding = BindingBuilder.bind(queue)
+                .to(exchange)
+                .with("internal.notification.routing-key");
+
+        amqpAdmin.declareQueue(queue);
+        amqpAdmin.declareExchange(exchange);
+        amqpAdmin.declareBinding(binding);
+    }
 
     @Test
     void registerCustomer_ShouldPersistCustomer() {
@@ -61,11 +89,18 @@ public class CustomerRegistrationIT extends BaseIntegrationTest {
         // Assert: DB
         Customer savedCustomer =
                 customerRepository.findAll().stream().findFirst().orElse(null);
-
         assertThat(savedCustomer).isNotNull();
         assertThat(savedCustomer.getEmail()).isEqualTo(email);
         assertThat(savedCustomer.getFirstName()).isEqualTo(firstName);
         assertThat(savedCustomer.getLastName()).isEqualTo(lastName);
         assertThat(savedCustomer.getId()).isNotNull();
+
+        // Assert RabbitMQ Data & Metadata info
+        NotificationRequest msg = (NotificationRequest) rabbitTemplate
+                .receiveAndConvert(notificationQueue);
+        assertThat(msg).isNotNull();
+        assertThat(msg.getMessage().contains("Hi"));
+        QueueInformation qInfo = amqpAdmin.getQueueInfo(notificationQueue);
+        assertThat(qInfo.getName().equalsIgnoreCase(notificationQueue));
     }
 }

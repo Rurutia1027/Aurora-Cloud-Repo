@@ -12,7 +12,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "spring.flyway.enabled=false",
         "spring.cloud.consul.enabled=false",
-        "spring.cloud.consul.discovery.enabled=false"
+        "spring.cloud.consul.discovery.enabled=false",
+        "rabbitmq.queues.notification=notification.queue"
 })
 public abstract class BaseIntegrationTest {
     @Container
@@ -37,9 +38,7 @@ public abstract class BaseIntegrationTest {
 
 
         // RabbitMQ
-        registry.add("spring.rabbitmq.host", rabbitMQ::getHost);
-        registry.add("spring.rabbitmq.port", () -> rabbitMQ.getAmqpPort());
-        registry.add("spring.rabbitmq.username", rabbitMQ::getAdminUsername);
-        registry.add("spring.rabbitmq.password", rabbitMQ::getAdminPassword);
+        registry.add("spring.rabbitmq.addresses",
+                () -> String.format("localhost:%d", rabbitMQ.getAmqpPort()));
     }
 }
