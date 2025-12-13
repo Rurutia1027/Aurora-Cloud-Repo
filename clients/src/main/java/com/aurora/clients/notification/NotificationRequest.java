@@ -1,7 +1,18 @@
 package com.aurora.clients.notification;
 
-public record NotificationRequest(
-        Integer toCustomerId,
-        String toCustomerName,
-        String message
-) {}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class NotificationRequest {
+    Integer toCustomerId;
+    String toCustomerEmail;
+    String message;
+}
