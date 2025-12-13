@@ -1,13 +1,11 @@
-name: CI Pipeline
+name: CI Daily Integration
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  schedule:
+    - cron: '0 2 * * *' # UTC every day 2 a.m. trigger
 
 jobs:
-  build-and-test:
+  daily-integration-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +27,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Compile & Build Project
-        run:  mvn clean install -DskipTests
+        run: mvn clean install -DskipTests
 
       - name: Integration Tests
         run: mvn verify -pl customer
