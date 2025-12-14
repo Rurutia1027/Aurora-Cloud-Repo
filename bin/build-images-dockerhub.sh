@@ -12,7 +12,7 @@ for module in "${modules[@]}"; do
   echo "Building Docker image for $module ..."
 
   # Build with unique tag
-  docker build --platform linux/arm64 -t nanachi1027/aurora-$module:$TAG ./$module
+  docker build --platform  linux/amd64,linux/arm64 -t nanachi1027/aurora-$module:$TAG ./$module
 
   # Tag also as latest
   docker tag nanachi1027/aurora-$module:$TAG nanachi1027/aurora-$module:$LATEST_TAG
