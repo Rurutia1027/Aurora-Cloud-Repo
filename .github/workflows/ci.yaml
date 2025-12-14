@@ -46,6 +46,18 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          use: true
+
+      - name: Inspect buildx builder
+        run: docker buildx inspect --bootstrap
+
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -55,7 +67,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build project
-        run: mvn clean package
+        run: mvn clean package -Pdocker-build
 
       - name: Set execution permission for scripts
         run: chmod +x ./bin/build-images-dockerhub.sh
