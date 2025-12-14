@@ -67,7 +67,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build project
-        run: mvn package spring-boot:repackage
+        run: mvn clean package -Pdocker-build
 
       - name: Set execution permission for scripts
         run: chmod +x ./bin/build-images-dockerhub.sh
