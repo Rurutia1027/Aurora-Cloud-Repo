@@ -29,7 +29,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Compile & Build Project
-        run:  mvn clean package
+        run:  mvn clean package # ut cases
 
       - name: Integration Tests
-        run: mvn verify -Pintegration-test
+        run: mvn verify -Pintegration-test # integration cases

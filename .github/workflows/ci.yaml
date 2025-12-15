@@ -67,7 +67,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build project
-        run: mvn clean package -Pdocker-build
+        run: mvn clean package -Pdocker-build # UT + docker image generation & package
 
       - name: Set execution permission for scripts
         run: chmod +x ./bin/build-images-dockerhub.sh

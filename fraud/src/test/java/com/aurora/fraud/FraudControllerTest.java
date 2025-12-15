@@ -38,7 +38,7 @@ class FraudControllerTest {
     void isFraudster_ShouldReturnFalse() throws Exception {
         Integer cid = UUID.randomUUID().variant();
 
-        mockMvc.perform(get("/api/v1/fraud-check/{customerId}", cid)
+        mockMvc.perform(get("/api/v1/fraud/check/{customerId}", cid)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isFraudster").value(false));

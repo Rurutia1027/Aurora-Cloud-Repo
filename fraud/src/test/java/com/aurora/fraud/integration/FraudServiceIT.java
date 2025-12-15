@@ -26,7 +26,7 @@ public class FraudServiceIT extends BaseFraudIntegrationTest {
 
         // Call controller endpoint
         ResponseEntity<FraudCheckResponse> response = restTemplate.getForEntity(
-                "/api/v1/fraud-check/{customerId}",
+                "/api/v1/fraud/check/{customerId}",
                 FraudCheckResponse.class,
                 customerId);
 

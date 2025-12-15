@@ -27,7 +27,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Compile & Build Project
-        run: mvn clean package # this trigger unit test cases
+        run: mvn clean package # this triggers unit test cases
 
       - name: Integration Tests
-        run: mvn verify -Pintegration-test # this trigger all integration test cases
+        run: mvn verify -Pintegration-test # this triggers all integration test cases
