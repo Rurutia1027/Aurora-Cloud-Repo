@@ -1,0 +1,47 @@
+# grafana-values.yaml
+replicaCount: 1
+
+image:
+  repository: grafana/grafana
+  tag: 11.0.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 3000
+  nodePort: 32000
+
+persistence:
+  enabled: true
+  size: 2Gi
+
+adminUser: admin
+adminPassword: admin
+
+serviceAccount:
+  create: true
+  name: grafana
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server.metrics.svc.cluster.local:80
+        access: proxy
+        isDefault: true
