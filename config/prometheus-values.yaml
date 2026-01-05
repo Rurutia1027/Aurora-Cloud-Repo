@@ -1,0 +1,42 @@
+# Prometheus Helm values
+server:
+  global:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+
+  # Prometheus scrape configs
+  extraScrapeConfigs: |
+    scrape_configs:
+      # --- Prometheus self ---
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['prometheus-server.metrics.svc.cluster.local:80']
+
+  # Persistent volume for Prometheus data
+  persistence:
+    enabled: true
+    storageClass: standard
+    accessModes: ["ReadWriteOnce"]
+    size: 5Gi
+
+  # Resources
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 2Gi
+
+  # Service type
+  service:
+    type: NodePort
+    nodePort: 30090
+    port: 9090
+
+  # RBAC
+  serviceAccount:
+    create: true
+    name: prometheus
+  rbac:
+    create: true

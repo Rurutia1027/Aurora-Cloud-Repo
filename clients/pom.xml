@@ -23,12 +23,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Cloud Consul for service discovery -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-        </dependency>
-
         <!-- OpenFeign for declarative REST clients -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
