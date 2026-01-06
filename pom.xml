@@ -15,7 +15,6 @@
     <!-- Modules -->
     <modules>
         <module>amqp</module>
-        <module>apigw</module>
         <module>fraud</module>
         <module>customer</module>
         <module>notification</module>
