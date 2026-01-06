@@ -11,31 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: amigoscode
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: customer
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U amigoscode -d customer"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-          - 15672:15672
-        options: >-
-          --health-cmd "rabbitmqctl status"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -66,5 +41,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Docker Hub Login
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      - name: Setup Kind Based K8s Cluster
+        run: |
+          bash ./bin/setup-k8s.sh 
+
+      - name: Show All Svcs, Pods, and Deployments
+        run: |
+          kubectl get pods -A
+          kubectl get svc -A 
+          kubectl get deploy -A 
+
+#      - name: Docker Hub Login
+#        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin

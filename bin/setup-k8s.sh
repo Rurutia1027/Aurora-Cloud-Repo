@@ -9,9 +9,10 @@ K8S_CONFIG_FILE="config/kind-config.yaml"
 ISTIO_NAMESPACE="istio-system"
 AURORA_NAMESPACE="aurora"
 
+# Services URLs (in-cluster)
 PROM_URL="http://prometheus-server.${ISTIO_NAMESPACE}.svc.cluster.local"
-JAEGER_URL="http://jaeger-query.${ISTIO_NAMESPACE}.svc.cluster.local"
-GRAFANA_URL="http://grafana.istio-system.svc.cluster.local:3000"
+JAEGER_URL="http://jaeger-query.${ISTIO_NAMESPACE}.svc.cluster.local:16686"
+GRAFANA_URL="http://grafana.${ISTIO_NAMESPACE}.svc.cluster.local:3000"
 
 # Helm values paths
 PROM_VALUES="config/prometheus-values.yaml"
@@ -56,29 +57,48 @@ helm install istiod istio/istiod -n "$ISTIO_NAMESPACE" --set telemetry.enabled=t
 helm install istio-ingress istio/gateway -n "$ISTIO_NAMESPACE"
 
 # -----------------------------
+# Install Prometheus
+# -----------------------------
+helm upgrade --install prometheus prometheus-community/prometheus \
+  -n "$ISTIO_NAMESPACE" \
+  -f "$PROM_VALUES"
+
+# -----------------------------
+# Install Grafana
+# -----------------------------
+helm upgrade --install grafana grafana/grafana \
+  -n "$ISTIO_NAMESPACE" \
+  -f "$GRAFANA_VALUES"
+
+# -----------------------------
 # Install Jaeger
 # -----------------------------
-helm install jaeger jaegertracing/jaeger \
+helm upgrade --install jaeger jaegertracing/jaeger \
   -n "$ISTIO_NAMESPACE" \
   --set provisionDataStore.cassandra=false \
-  --set storage.type=memory
+  --set storage.type=memory \
+  --set query.service.type=ClusterIP \
+  --set query.ingress.enabled=false \
+  --set query.replicaCount=1
 
 # -----------------------------
 # Install Kiali
 # -----------------------------
-helm install kiali-server kiali/kiali-server \
+helm upgrade --install kiali-server kiali/kiali-server \
   -n "$ISTIO_NAMESPACE" \
   --set auth.strategy=anonymous \
   --set external_services.prometheus.url="$PROM_URL" \
   --set external_services.tracing.enabled=true \
   --set external_services.tracing.provider=jaeger \
-  --set external_services.tracing.url="$JAEGER_URL" \
-  --set external_services.grafana.url="$GRAFANA_URL"
+  --set external_services.tracing.in_cluster_url="$JAEGER_URL" \
+  --set external_services.grafana.url="$GRAFANA_URL" \
+  --create-namespace
+
 
 # -----------------------------
 # Wait for all pods
 # -----------------------------
-kubectl wait --for=condition=Ready pods --all -n "$ISTIO_NAMESPACE" --timeout=300s
+kubectl wait --for=condition=Ready pods --all -n "$ISTIO_NAMESPACE" --timeout=60s
 
 # -----------------------------
 # Summary & Port-forward tips
