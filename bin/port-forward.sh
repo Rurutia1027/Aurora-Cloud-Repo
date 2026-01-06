@@ -18,12 +18,8 @@ RABBIT_UI_PID=$!
 # Give port-forwards a few seconds to be ready
 sleep 5
 
-# -----------------------------
-# Build & test with Maven
-# -----------------------------
-mvn clean package -DskipTests
-
-# -----------------------------
-# Kill background port-forwards after build
-# -----------------------------
-kill $POSTGRES_PID $RABBIT_PID $RABBIT_UI_PID || true
+#
+## -----------------------------
+## Kill background port-forwards after build
+## -----------------------------
+#kill $POSTGRES_PID $RABBIT_PID $RABBIT_UI_PID || true

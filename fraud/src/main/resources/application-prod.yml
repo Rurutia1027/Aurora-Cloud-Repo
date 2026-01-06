@@ -1,14 +1,15 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
-    name: ${APP_NAME:customer}
+    name: ${APP_NAME:fraud}
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://postgres.aurora.svc.cluster.local:5432/customer}
+    url: ${DB_URL:jdbc:postgresql://postgres.aurora.svc.cluster.local:5432/fraud}
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -16,18 +17,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: true
+        format_sql: false
+    show-sql: false
 
   rabbitmq:
-    addresses: ${RABBITMQ_ADDR:amqp://rabbitmq.aurora.svc.cluster.local:5672}
-
-  cloud:
-    discovery:
-      enabled: false
-    loadbalancer:
-      ribbon:
-        enabled: false
+    addresses:  ${RABBITMQ_ADDR:amqp://rabbitmq.aurora.svc.cluster.local:5672}
 
 management:
   endpoints:
@@ -40,4 +34,4 @@ management:
 
 logging:
   level:
-    root: INFO
+    root: ${LOG_LEVEL:INFO}

@@ -53,9 +53,20 @@ jobs:
           kubectl get svc -A 
           kubectl get deploy -A 
 
-      - name: Svc Ports Forward and Compile Modules of Project
+      - name: K8s Services Port Forward
         run: |
-          bash ./bin/port-forward_and_compile.sh
+          bash ./bin/port-forward.sh    
 
-#      - name: Docker Hub Login
-#        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      - name: Build Project
+        run: mvn clean package -Pdocker-build
+
+      - name: Shutdown K8s Cluster
+        run: bash ./bin/shutdown-k8s.sh
+
+      - name: Docker Hub Login
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build & Push Docker Images
+        run: |
+          chmod +x ./bin/build-images-dockerhub.sh
+          ./bin/build-images-dockerhub.sh ${{ github.sha }}
