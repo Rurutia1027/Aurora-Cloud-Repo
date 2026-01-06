@@ -1,0 +1,3 @@
+CREATE SEQUENCE fraud_id_sequence
+    START WITH 1
+    INCREMENT BY 50;
