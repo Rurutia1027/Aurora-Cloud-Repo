@@ -6,7 +6,7 @@ spring:
     name: ${APP_NAME:customer}
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://postgres.aurora-platform.svc.cluster.local:5432/customer}
+    url: ${DB_URL:jdbc:postgresql://postgres.aurora.svc.cluster.local:5432/customer}
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:admin}
 
@@ -25,12 +25,14 @@ spring:
     show-sql: true
 
   rabbitmq:
-    addresses: ${RABBITMQ_ADDR:amqp://rabbitmq.aurora-platform.svc.cluster.local:5672}
+    addresses: ${RABBITMQ_ADDR:amqp://rabbitmq.aurora.svc.cluster.local:5672}
 
-  notification:
-    url: ${NOTIFICATION_URL:http://notification.aurora-platform.svc.cluster.local:8080}
-  fraud:
-    url: ${FRAUD_URL:http://fraud.aurora-platform.svc.cluster.local:8080}
+  cloud:
+    discovery:
+      enabled: false
+    loadbalancer:
+      ribbon:
+        enabled: false
 
 management:
   endpoints:
