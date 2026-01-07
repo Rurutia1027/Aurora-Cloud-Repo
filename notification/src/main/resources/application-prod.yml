@@ -6,7 +6,7 @@ spring:
     name: ${APP_NAME:notification}
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://postgres.aurora.svc.cluster.local:5432/notification}
+    url: ${DB_URL:jdbc:postgresql://postgres.aurora-prod.svc.cluster.local:5432/notification}
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:admin}
 
@@ -21,7 +21,7 @@ spring:
     show-sql: ${JPA_SHOW_SQL:true}
 
   rabbitmq:
-    addresses: ${RABBITMQ_ADDR:amqp://rabbitmq.aurora.svc.cluster.local:5672}
+    addresses: ${RABBITMQ_ADDR:amqp://rabbitmq.aurora-prod.svc.cluster.local:5672}
 
 rabbitmq:
   exchanges:

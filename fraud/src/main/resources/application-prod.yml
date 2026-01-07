@@ -6,7 +6,7 @@ spring:
     name: ${APP_NAME:fraud}
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://postgres.aurora.svc.cluster.local:5432/fraud}
+    url: ${DB_URL:jdbc:postgresql://postgres.aurora-prod.svc.cluster.local:5432/fraud}
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
@@ -21,7 +21,7 @@ spring:
     show-sql: false
 
   rabbitmq:
-    addresses:  ${RABBITMQ_ADDR:amqp://rabbitmq.aurora.svc.cluster.local:5672}
+    addresses:  ${RABBITMQ_ADDR:amqp://rabbitmq.aurora-prod.svc.cluster.local:5672}
 
 management:
   endpoints:
