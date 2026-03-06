@@ -37,3 +37,6 @@ build/
 ### Mac OS ###
 .DS_Store
 /.idea/
+
+### OpenTelemetry Java Agent (downloaded by bin/download-otel-agent.sh) ###
+/otel-agent/

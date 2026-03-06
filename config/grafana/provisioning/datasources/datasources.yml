@@ -1,0 +1,11 @@
+# Grafana datasource provisioning (docker-compose)
+# Prometheus is used as default for metrics from customer, fraud, notification.
+
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

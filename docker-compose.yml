@@ -1,0 +1,166 @@
+# Tracing: customer/fraud/notification use OpenTelemetry Java Agent; run once: ./bin/download-otel-agent.sh
+# Then: docker-compose up. Jaeger UI: http://localhost:16686
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      # Default database used by init scripts; application DBs are created by init script.
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./bin/init-postgres-dbs.sh:/docker-entrypoint-initdb.d/00_init_db.sh:ro
+    networks:
+      - aurora-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    networks:
+      - aurora-net
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+    networks:
+      - aurora-net
+
+  customer:
+    image: nanachi1027/aurora-customer:latest
+    container_name: customer
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
+      APP_NAME: customer
+      DB_URL: jdbc:postgresql://postgres:5432/customer
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+      RABBITMQ_ADDR: amqp://rabbitmq:5672
+      JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
+      OTEL_SERVICE_NAME: customer
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+    volumes:
+      - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
+    depends_on:
+      - postgres
+      - rabbitmq
+      - jaeger
+    ports:
+      - "8080:8080"
+    networks:
+      - aurora-net
+
+  fraud:
+    image: nanachi1027/aurora-fraud:latest
+    container_name: fraud
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8081
+      APP_NAME: fraud
+      DB_URL: jdbc:postgresql://postgres:5432/fraud
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+      RABBITMQ_ADDR: amqp://rabbitmq:5672
+      JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
+      OTEL_SERVICE_NAME: fraud
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+    volumes:
+      - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
+    depends_on:
+      - postgres
+      - rabbitmq
+      - jaeger
+    ports:
+      - "8081:8081"
+    networks:
+      - aurora-net
+
+  notification:
+    image: nanachi1027/aurora-notification:latest
+    container_name: notification
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8082
+      APP_NAME: notification
+      DB_URL: jdbc:postgresql://postgres:5432/notification
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+      RABBITMQ_ADDR: amqp://rabbitmq:5672
+      JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
+      OTEL_SERVICE_NAME: notification
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+    volumes:
+      - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
+    depends_on:
+      - postgres
+      - rabbitmq
+      - jaeger
+    ports:
+      - "8082:8082"
+    networks:
+      - aurora-net
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - customer
+      - fraud
+      - notification
+    networks:
+      - aurora-net
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_HTTP_PORT: 3000
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - aurora-net
+
+networks:
+  aurora-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
