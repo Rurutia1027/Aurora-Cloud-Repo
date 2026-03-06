@@ -1,0 +1,17 @@
+# docker-compose: service names as hostnames (customer, fraud, notification)
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: customer
+          uri: http://customer:8080
+          predicates:
+            - Path=/api/v1/customers/**
+        - id: fraud
+          uri: http://fraud:8081
+          predicates:
+            - Path=/api/v1/fraud/**
+        - id: notification
+          uri: http://notification:8082
+          predicates:
+            - Path=/api/v1/notification/**
