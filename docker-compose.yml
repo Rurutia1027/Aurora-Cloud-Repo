@@ -1,5 +1,7 @@
-# Tracing: customer/fraud/notification use OpenTelemetry Java Agent; run once: ./bin/download-otel-agent.sh
-# Then: docker-compose up. Jaeger UI: http://localhost:16686
+# Tracing: customer/fraud/notification use OpenTelemetry Java Agent.
+# - If images are built from this repo's Dockerfiles, the agent is inside the image; the volume mount below is optional.
+# - If using pre-built images without the agent, run once: ./bin/download-otel-agent.sh and keep the volume mount.
+# Jaeger UI: http://localhost:16686. See docs/tracing-agent-docker.md.
 services:
   postgres:
     image: postgres:15
@@ -38,6 +40,29 @@ services:
       - "16686:16686"   # UI
       - "4317:4317"     # OTLP gRPC
       - "4318:4318"     # OTLP HTTP
+    networks:
+      - aurora-net
+
+  apigw:
+    image: nanachi1027/aurora-apigw:latest
+    container_name: apigw
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8083
+      APP_NAME: apigw
+      JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
+      OTEL_SERVICE_NAME: apigw
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+    volumes:
+      - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
+    depends_on:
+      - customer
+      - fraud
+      - notification
+      - jaeger
+    ports:
+      - "8083:8083"
     networks:
       - aurora-net
 
