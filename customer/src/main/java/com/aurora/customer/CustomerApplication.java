@@ -6,7 +6,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(scanBasePackages = {
         "com.aurora.customer",
-        "com.aurora.amqp"
+        "com.aurora.amqp",
+        "com.aurora.observability"
 })
 @EnableFeignClients(basePackages = {
         "com.aurora.clients.fraud",

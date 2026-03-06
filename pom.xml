@@ -20,6 +20,8 @@
         <module>notification</module>
         <module>clients</module>
         <module>apigw</module>
+        <module>observability-support</module>
+        <module>observability-support-webflux</module>
     </modules>
 
     <!-- Properties -->
