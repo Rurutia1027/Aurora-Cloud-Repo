@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      # Default database used by init scripts; application DBs are created by init script.
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./bin/init-postgres-dbs.sh:/docker-entrypoint-initdb.d/00_init_db.sh:ro
+    networks:
+      - aurora-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    networks:
+      - aurora-net
+
+  customer:
+    image: nanachi1027/aurora-customer:latest
+    container_name: customer
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
+      APP_NAME: customer
+      DB_URL: jdbc:postgresql://postgres:5432/customer
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+      RABBITMQ_ADDR: amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - "8080:8080"
+    networks:
+      - aurora-net
+
+  fraud:
+    image: nanachi1027/aurora-fraud:latest
+    container_name: fraud
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8081
+      APP_NAME: fraud
+      DB_URL: jdbc:postgresql://postgres:5432/fraud
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+      RABBITMQ_ADDR: amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - "8081:8081"
+    networks:
+      - aurora-net
+
+  notification:
+    image: nanachi1027/aurora-notification:latest
+    container_name: notification
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8082
+      APP_NAME: notification
+      DB_URL: jdbc:postgresql://postgres:5432/notification
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+      RABBITMQ_ADDR: amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - "8082:8082"
+    networks:
+      - aurora-net
+
+networks:
+  aurora-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
