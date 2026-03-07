@@ -1,5 +1,12 @@
-# docker-compose: service names as hostnames (customer, fraud, notification)
+server:
+  port: ${SERVER_PORT:8083}
+
+# Gateway is reactive (WebFlux); avoid conflict with transitive spring-boot-starter-web from observability-support
 spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: ${APP_NAME:apigw}
   cloud:
     gateway:
       routes:
@@ -15,3 +22,16 @@ spring:
           uri: http://notification:8082
           predicates:
             - Path=/api/v1/notification/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
