@@ -43,7 +43,7 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
-                            <mainClass>com.aurora.apigw.ApigwApplication</mainClass>
+                            <mainClass>com.aurora.apigw.ApiGatewayApplication</mainClass>
                         </configuration>
                         <executions>
                             <execution>
