@@ -10,16 +10,17 @@ spring:
   cloud:
     gateway:
       routes:
+        # Defaults: localhost for running apigw in IDEA with backends in docker-compose
         - id: customer
-          uri: http://customer:8080
+          uri: ${CUSTOMER_URI:http://localhost:8080}
           predicates:
             - Path=/api/v1/customers/**
         - id: fraud
-          uri: http://fraud:8081
+          uri: ${FRAUD_URI:http://localhost:8081}
           predicates:
             - Path=/api/v1/fraud/**
         - id: notification
-          uri: http://notification:8082
+          uri: ${NOTIFICATION_URI:http://localhost:8082}
           predicates:
             - Path=/api/v1/notification/**
 
