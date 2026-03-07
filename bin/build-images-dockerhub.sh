@@ -10,7 +10,7 @@ if [ -z "$TAG" ]; then
   exit 1
 fi
 
-modules=(customer fraud notification)
+modules=(customer fraud notification apigw)
 
 # Build and push multi-arch images
 for module in "${modules[@]}"; do

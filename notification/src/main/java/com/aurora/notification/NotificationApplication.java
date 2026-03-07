@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
         "com.aurora.notification",
-        "com.aurora.amqp"
+        "com.aurora.amqp",
+        "com.aurora.observability"
 })
 public class NotificationApplication {
     public static void main(String[] args) {

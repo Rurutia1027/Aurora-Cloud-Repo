@@ -5,12 +5,11 @@ WORKDIR /app
 ARG OTEL_AGENT_URL=https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
 RUN mkdir -p /otel && curl -sSL -o /otel/opentelemetry-javaagent.jar "${OTEL_AGENT_URL}"
 
-COPY target/customer-1.0-SNAPSHOT.jar app.jar
+COPY target/apigw-1.0-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8083
 
 ENV SPRING_PROFILES_ACTIVE=prod
-ENV SERVER_PORT=8080
+ENV SERVER_PORT=8083
 
-# Agent path is in image; set OTEL_SERVICE_NAME, OTEL_EXPORTER_OTLP_ENDPOINT at runtime
 ENTRYPOINT ["java", "-javaagent:/otel/opentelemetry-javaagent.jar", "-jar", "/app/app.jar"]
