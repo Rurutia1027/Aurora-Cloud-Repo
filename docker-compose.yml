@@ -47,13 +47,19 @@ services:
     image: nanachi1027/aurora-apigw:latest
     container_name: apigw
     environment:
-      SPRING_PROFILES_ACTIVE: prod
       SERVER_PORT: 8083
       APP_NAME: apigw
+      # Backend URIs (use service names on compose network; required so gateway can resolve customer/fraud/notification)
+      CUSTOMER_URI: http://customer:8080
+      FRAUD_URI: http://fraud:8081
+      NOTIFICATION_URI: http://notification:8082
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: apigw
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
@@ -70,7 +76,6 @@ services:
     image: nanachi1027/aurora-customer:latest
     container_name: customer
     environment:
-      SPRING_PROFILES_ACTIVE: prod
       SERVER_PORT: 8080
       APP_NAME: customer
       DB_URL: jdbc:postgresql://postgres:5432/customer
@@ -80,7 +85,10 @@ services:
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: customer
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
@@ -96,7 +104,6 @@ services:
     image: nanachi1027/aurora-fraud:latest
     container_name: fraud
     environment:
-      SPRING_PROFILES_ACTIVE: prod
       SERVER_PORT: 8081
       APP_NAME: fraud
       DB_URL: jdbc:postgresql://postgres:5432/fraud
@@ -106,7 +113,10 @@ services:
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: fraud
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
@@ -122,7 +132,6 @@ services:
     image: nanachi1027/aurora-notification:latest
     container_name: notification
     environment:
-      SPRING_PROFILES_ACTIVE: prod
       SERVER_PORT: 8082
       APP_NAME: notification
       DB_URL: jdbc:postgresql://postgres:5432/notification
@@ -132,7 +141,10 @@ services:
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: notification
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
