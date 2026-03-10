@@ -19,7 +19,9 @@ public class NotificationController {
 
     @PostMapping
     public void sendNotification(@RequestBody NotificationRequest notificationRequest) {
-        log.info("New notification... {}", notificationRequest);
+        log.info("Incoming notification request toUserId={} toEmail={}",
+                notificationRequest.getToCustomerId(),
+                notificationRequest.getToCustomerEmail());
         notificationService.send(notificationRequest);
     }
 }
