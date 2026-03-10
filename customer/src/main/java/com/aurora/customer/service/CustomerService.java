@@ -32,11 +32,13 @@ public class CustomerService {
         // todo: check if email valid
         // todo: check if email not taken
         customerRepository.saveAndFlush(customer);
+        log.info("Customer persisted customerId={} email={}", customer.getId(), customer.getEmail());
 
         FraudCheckResponse fraudCheckResponse =
                 fraudClient.isFraudster(customer.getId());
 
         if (fraudCheckResponse.getIsFraudster()) {
+            log.warn("Fraud detected for customerId={}", customer.getId());
             throw new IllegalStateException("fraudster");
         }
 
@@ -52,6 +54,7 @@ public class CustomerService {
                 "internal.exchange",
                 "internal.notification.routing-key"
         );
-        log.info("Publish request to message broker");
+        log.info("Notification request published to message broker customerId={} email={}",
+                customer.getId(), customer.getEmail());
     }
 }

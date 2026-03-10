@@ -58,6 +58,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
     volumes:
@@ -87,6 +88,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
     volumes:
@@ -115,6 +117,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
     volumes:
@@ -143,6 +146,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
     volumes:
