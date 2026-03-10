@@ -7,6 +7,7 @@ import com.aurora.clients.notification.NotificationRequest;
 import com.aurora.customer.dto.Customer;
 import com.aurora.customer.dto.CustomerRegistrationRequest;
 import com.aurora.customer.repo.CustomerRepository;
+import com.aurora.observability.dto.CustomerFlowMonitor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final FraudClient fraudClient;
     private final RabbitMQMessageProducer rabbitMQMessageProducer;
+    private final CustomerFlowMonitor customerFlowMonitor;
 
     public void registerCustomer(CustomerRegistrationRequest request) {
         Customer customer = Customer.builder()
@@ -39,6 +41,7 @@ public class CustomerService {
 
         if (fraudCheckResponse.getIsFraudster()) {
             log.warn("Fraud detected for customerId={}", customer.getId());
+            customerFlowMonitor.markError();
             throw new IllegalStateException("fraudster");
         }
 
@@ -56,5 +59,6 @@ public class CustomerService {
         );
         log.info("Notification request published to message broker customerId={} email={}",
                 customer.getId(), customer.getEmail());
+        customerFlowMonitor.markSuccess();
     }
 }
