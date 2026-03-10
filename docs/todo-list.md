@@ -25,7 +25,22 @@ In both **docker-compose mode** and **Kubernetes mode**:
 
 ## 2. High-Level Observability Architecture
 
-### Per Service (Spring Boot)
+### 2.1 Identity & Correlation Model
+
+We use standard OpenTelemetry identifiers as the backbone for correlation:
+
+* **Trace ID**
+  * 16-byte / 32-hex, globally unique per request/transaction
+  * Acts as the primary key to correlate traces, logs, and (optionally) metrics exemplars
+* **Span ID**
+  * 8-byte / 16-hex, unique per span within a trace
+  * Used to zoom into a specific unit of work (HTTP call, DB query, AMQP handler, etc.)
+* **Business Attributes (via attributes + baggage)**
+  * `user.id`, `tenant.id`, `order.id`, etc.
+  * Attached as span attributes and (where needed) as structured log fields
+  * Only low-cardinality attributes may be used as metric labels (e.g., `tenant.id`)
+
+### 2.2 Per Service (Spring Boot)
 
 Each service implements:
 
@@ -49,8 +64,8 @@ Each service implements:
 * Prometheus for metrics scraping
 * Logs:
 
-    * stdout logs collected by Promtail / Fluent Bit
-    * Forwarded to Loki / ELK
+  * stdout logs collected by Promtail / Fluent Bit
+  * Forwarded to Loki / ELK
 
 #### Kubernetes
 
@@ -129,17 +144,25 @@ Less future-proof than OpenTelemetry.
 * Producer span: `amqp.publish.<event>`
 * Consumer span: `amqp.consume.<event>`
 
-    * Child spans: service → repository → JDBC
+  * Child spans: service → repository → JDBC
 
 ---
 
 ### 3.3 Context Propagation
 
-Use **W3C TraceContext** (`traceparent`, `tracestate`):
+Use **W3C TraceContext** (`traceparent`, `tracestate`) plus **OpenTelemetry Baggage**:
 
-* HTTP: propagated via headers
-* Spring Cloud Gateway → backend services
-* AMQP: via message headers (auto or interceptor)
+* **HTTP**
+  * `traceparent` / `tracestate` headers carry trace and span context
+  * `baggage` header carries business context (`user.id`, `tenant.id`, etc.)
+  * Spring Cloud Gateway → backend services via standard OTel propagation
+* **AMQP / Messaging**
+  * Trace context injected into message headers via OTel propagators
+  * Consumers extract context and continue the same trace (same Trace ID)
+* **In-Process / Threads**
+  * OTel Context is the source of truth
+  * MDC/ThreadLocal values (`traceId`, `spanId`, `userId`, etc.) are derived from OTel Context
+  * MDC is always cleared at the end of request processing to avoid leakage between users
 
 ---
 
@@ -287,7 +310,7 @@ Or define `ServiceMonitor` resources.
 
 ### 5.1 Log Format
 
-Use Logback + JSON encoder (e.g., logstash-logback-encoder).
+Use Logback + JSON encoder (e.g., logstash-logback-encoder) or the OpenTelemetry Log Appender/bridge when available.
 
 Standard fields:
 
@@ -300,8 +323,10 @@ Standard fields:
 * traceId
 * spanId
 * environment
+* optional business context (e.g., userId, tenantId, orderId)
 
-Trace identifiers populated via MDC from OpenTelemetry/Sleuth.
+Trace identifiers are populated from the active OpenTelemetry Context. MDC is used as a bridge so existing logging code
+continues to work.
 
 All logs go to **stdout**.
 
@@ -314,6 +339,7 @@ All logs go to **stdout**.
 * Promtail / Fluent Bit container
 * Reads Docker stdout logs
 * Pushes to Loki or Elasticsearch
+* (optional) OpenTelemetry Collector can receive OTLP logs and forward to Loki/ELK
 
 Queryable by:
 
@@ -445,19 +471,20 @@ Environment determines:
 
 ## 8. Rollout Plan
 
-### Phase 1 – Baseline
+### Phase 1 – Tracing & Context Baseline
 
-* Add Micrometer Prometheus registry
-* Enable `/actuator/prometheus`
-* Enable JSON logging with traceId/spanId
+* Attach OpenTelemetry Java Agent (docker-compose first) to `apigw` and at least one core backend service
+* Enable W3C TraceContext + baggage propagation (HTTP + messaging)
+* Ensure MDC/logging correctly picks up `traceId` / `spanId` from OTel Context
+* Verify traces in Jaeger (Trace ID as the global correlation key) and validate span hierarchy
 
 ---
 
-### Phase 2 – Tracing
+### Phase 2 – Metrics & Logging Baseline
 
-* Attach OpenTelemetry Java Agent (docker-compose first)
-* Verify traces in Jaeger
-* Validate service names and span hierarchy
+* Add Micrometer Prometheus registry
+* Enable `/actuator/prometheus`
+* Enable JSON logging with traceId/spanId across all services
 
 ---
 
@@ -466,9 +493,9 @@ Environment determines:
 * Add Jaeger, Prometheus, logging stack
 * Validate:
 
-    * Traces in Jaeger
-    * Metrics in Prometheus
-    * Logs correlated by traceId
+  * Traces in Jaeger
+  * Metrics in Prometheus
+  * Logs correlated by traceId
 
 ---
 
