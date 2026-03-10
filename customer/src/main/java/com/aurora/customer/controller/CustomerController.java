@@ -22,7 +22,10 @@ public class CustomerController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public void registerCustomer(@RequestBody CustomerRegistrationRequest customerRegistrationRequest) {
-        log.info("new customer registration {}", customerRegistrationRequest);
+        log.info("Incoming customer registration request firstName={} lastName={} email={}",
+                customerRegistrationRequest.getFirstName(),
+                customerRegistrationRequest.getLastName(),
+                customerRegistrationRequest.getEmail());
         customerService.registerCustomer(customerRegistrationRequest);
     }
 }
