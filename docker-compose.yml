@@ -78,6 +78,8 @@ services:
       DB_USERNAME: admin
       DB_PASSWORD: admin
       RABBITMQ_ADDR: amqp://rabbitmq:5672
+      FRAUD_SERVICE_URL: http://fraud:8081
+      NOTIFICATION_SERVICE_URL: http://notification:8082
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: customer
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
