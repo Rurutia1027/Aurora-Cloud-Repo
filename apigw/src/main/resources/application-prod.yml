@@ -1,0 +1,39 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+# Production profile defaults: assume running in Kubernetes.
+# You can still override each backend URI via CUSTOMER_URI/FRAUD_URI/NOTIFICATION_URI env vars.
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: ${APP_NAME:apigw}
+  cloud:
+    gateway:
+      routes:
+        - id: customer
+          uri: ${CUSTOMER_URI:http://customer.aurora-prod.svc.cluster.local:8080}
+          predicates:
+            - Path=/api/v1/customers/**
+        - id: fraud
+          uri: ${FRAUD_URI:http://fraud.aurora-prod.svc.cluster.local:8081}
+          predicates:
+            - Path=/api/v1/fraud/**
+        - id: notification
+          uri: ${NOTIFICATION_URI:http://notification.aurora-prod.svc.cluster.local:8082}
+          predicates:
+            - Path=/api/v1/notification/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+
