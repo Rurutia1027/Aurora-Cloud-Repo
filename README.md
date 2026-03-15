@@ -45,7 +45,8 @@ The application is composed of several Spring Boot microservices that communicat
 | **Logs**                 | Logback → OTel Appender → OTLP → Collector → Loki; Grafana Loki datasource + provisioned dashboard “Aurora Application Logs”; query by `service_name`, `trace_id`. |
 | **Tracing**              | Jaeger UI; consistent sampling (`parentbased_always_on`); MQ context propagation so producer and consumer share one trace.                                         |
 
-### Observability architecture (ASCII)
+### Observability architecture
+![](docs/observabilty-arch.png)
 
 ### Vision: complex scenarios (local + cloud-native)
 
