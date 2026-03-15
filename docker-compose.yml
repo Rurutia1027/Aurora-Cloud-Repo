@@ -35,9 +35,23 @@ services:
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
+      - "16686:16686"   # UI only; OTLP now via otel-collector
+    networks:
+      - aurora-net
+
+  # OTLP collector: receives traces + logs from apps; forwards traces to Jaeger, logs to Loki
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.112.0
+    container_name: otel-collector
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./config/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    depends_on:
+      - jaeger
+      - loki
     networks:
       - aurora-net
 
@@ -47,33 +61,37 @@ services:
     container_name: apigw
     environment:
       SERVER_PORT: 8083
+      APP_NAME: apigw
+      # Backend URIs (use service names on compose network; required so gateway can resolve customer/fraud/notification)
       CUSTOMER_URI: http://customer:8080
       FRAUD_URI: http://fraud:8081
       NOTIFICATION_URI: http://notification:8082
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: apigw
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_TRACES_SAMPLER: parentbased_always_on
       OTEL_PROPAGATORS: tracecontext,baggage
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: otlp
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
       - customer
       - fraud
       - notification
-      - jaeger
+      - otel-collector
     ports:
       - "8083:8083"
     networks:
       - aurora-net
-
 
   customer:
     image: nanachi1027/aurora-customer:latest
     container_name: customer
     environment:
       SERVER_PORT: 8080
+      APP_NAME: customer
       DB_URL: jdbc:postgresql://postgres:5432/customer
       DB_USERNAME: admin
       DB_PASSWORD: admin
@@ -82,69 +100,80 @@ services:
       NOTIFICATION_SERVICE_URL: http://notification:8082
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: customer
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: otlp
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
       - postgres
       - rabbitmq
-      - jaeger
+      - otel-collector
     ports:
       - "8080:8080"
     networks:
       - aurora-net
-
 
   fraud:
     image: nanachi1027/aurora-fraud:latest
     container_name: fraud
     environment:
       SERVER_PORT: 8081
+      APP_NAME: fraud
       DB_URL: jdbc:postgresql://postgres:5432/fraud
       DB_USERNAME: admin
       DB_PASSWORD: admin
       RABBITMQ_ADDR: amqp://rabbitmq:5672
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: fraud
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: otlp
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
       - postgres
       - rabbitmq
-      - jaeger
+      - otel-collector
     ports:
       - "8081:8081"
     networks:
       - aurora-net
-
 
   notification:
     image: nanachi1027/aurora-notification:latest
     container_name: notification
     environment:
       SERVER_PORT: 8082
+      APP_NAME: notification
       DB_URL: jdbc:postgresql://postgres:5432/notification
       DB_USERNAME: admin
       DB_PASSWORD: admin
       RABBITMQ_ADDR: amqp://rabbitmq:5672
       JAVA_TOOL_OPTIONS: -javaagent:/otel/opentelemetry-javaagent.jar
       OTEL_SERVICE_NAME: notification
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_PROPAGATORS: tracecontext,baggage
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: otlp
     volumes:
       - ./otel-agent/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     depends_on:
       - postgres
       - rabbitmq
-      - jaeger
+      - otel-collector
     ports:
       - "8082:8082"
     networks:
       - aurora-net
-
 
   prometheus:
     image: prom/prometheus:v2.48.0
@@ -157,9 +186,13 @@ services:
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"
+    depends_on:
+      - apigw
+      - customer
+      - fraud
+      - notification
     networks:
       - aurora-net
-
 
   loki:
     image: grafana/loki:2.9.4
@@ -184,7 +217,6 @@ services:
       - loki
     networks:
       - aurora-net
-
 
   grafana:
     image: grafana/grafana:10.2.2

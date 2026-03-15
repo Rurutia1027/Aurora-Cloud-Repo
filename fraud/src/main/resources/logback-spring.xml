@@ -2,7 +2,7 @@
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <!-- Console appender with JSON encoder including MDC (traceId/spanId from OpenTelemetry) -->
+    <!-- Console appender with JSON encoder including MDC (trace_id/span_id from OpenTelemetry) -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
@@ -12,7 +12,6 @@
                 <threadName/>
                 <message/>
                 <context/>
-                <!-- MDC fields: expect OpenTelemetry Java Agent to populate trace_id/span_id -->
                 <mdc/>
                 <arguments/>
                 <stackTrace/>
@@ -20,9 +19,14 @@
         </encoder>
     </appender>
 
+    <!-- OTLP: sends logs to OpenTelemetry SDK (agent); trace_id/span_id linked when OTEL_LOGS_EXPORTER=otlp -->
+    <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+    </appender>
+
     <root level="${LOG_LEVEL:-INFO}">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="OpenTelemetry"/>
     </root>
 
 </configuration>
-
