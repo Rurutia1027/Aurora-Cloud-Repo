@@ -2,7 +2,7 @@ package com.aurora.fraud.service;
 
 import com.aurora.fraud.dto.FraudCheckHistory;
 import com.aurora.fraud.repo.FraudCheckHistoryRepository;
-import com.aurora.observability.dto.FraudFlowMonitor;
+import com.aurora.observability.metrics.FraudFlowMonitor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

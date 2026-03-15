@@ -3,7 +3,7 @@ package com.aurora.notification.service;
 import com.aurora.clients.notification.NotificationRequest;
 import com.aurora.notification.dto.Notification;
 import com.aurora.notification.repo.NotificationRepository;
-import com.aurora.observability.dto.NotificationFlowMonitor;
+import com.aurora.observability.metrics.NotificationFlowMonitor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
