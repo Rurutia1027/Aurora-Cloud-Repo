@@ -1,0 +1,11 @@
+# Provision Aurora dashboards from the aurora-loki folder.
+apiVersion: 1
+providers:
+  - name: aurora
+    orgId: 1
+    folder: Aurora
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards/aurora-loki

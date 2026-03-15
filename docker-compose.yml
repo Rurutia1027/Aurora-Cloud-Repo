@@ -224,7 +224,10 @@ services:
   loki:
     image: grafana/loki:2.9.4
     container_name: loki
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./config/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki-data:/loki
     ports:
       - "3100:3100"
     networks:
@@ -251,3 +254,4 @@ volumes:
   postgres-data:
   prometheus-data:
   grafana-data:
+  loki-data:
