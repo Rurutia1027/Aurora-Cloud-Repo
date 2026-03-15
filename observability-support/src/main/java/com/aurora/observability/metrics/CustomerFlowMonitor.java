@@ -1,4 +1,4 @@
-package com.aurora.observability.dto;
+package com.aurora.observability.metrics;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;

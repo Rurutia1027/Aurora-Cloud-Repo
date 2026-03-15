@@ -7,7 +7,7 @@ import com.aurora.clients.notification.NotificationRequest;
 import com.aurora.customer.dto.Customer;
 import com.aurora.customer.dto.CustomerRegistrationRequest;
 import com.aurora.customer.repo.CustomerRepository;
-import com.aurora.observability.dto.CustomerFlowMonitor;
+import com.aurora.observability.metrics.CustomerFlowMonitor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
