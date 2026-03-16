@@ -14,10 +14,12 @@ import org.springframework.stereotype.Component;
 public class RabbitMQMessageProducer {
 
     private final AmqpTemplate amqpTemplate;
+    private final TracingMessagePostProcessor tracingMessagePostProcessor =
+            new TracingMessagePostProcessor();
 
     public void publish(Object payload, String exchange, String routingKey) {
         log.info("Publishing to {} using routingKey {}. Payload: {}", exchange, routingKey, payload);
-        amqpTemplate.convertAndSend(exchange, routingKey, payload);
+        amqpTemplate.convertAndSend(exchange, routingKey, payload, tracingMessagePostProcessor);
         log.info("Published to {} using routingKey {}. Payload: {}", exchange, routingKey, payload);
     }
 
